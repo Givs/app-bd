@@ -81,7 +81,7 @@ Ao deletar um cliente, o usuário associado é deletado automaticamente (CASCADE
 Ao deletar um livro, as associações na tabela Autor_Livro são removidas primeiro.
 
 
-Ao criar uma reserva, a API verifica se o livro já tem mais de 3 reservas. Se tiver, a reserva não é permitida.
+Ao criar uma reserva, a API verifica se o livro já tem mais de 3 reservas. Se tiver, a reserva não é permitida. Se não tiver, insere (transction, consulta + insert)
 
 # Erros e Exceções
 A API lida com vários erros e exceções, como:
