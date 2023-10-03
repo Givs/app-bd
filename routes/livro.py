@@ -21,7 +21,7 @@ def create_livro(livro: Livro, db: psycopg2.extensions.connection = Depends(get_
 
     try:
         with db.cursor() as cursor:
-            # Iniciar transação
+            # Iniciar transação, apesar de entender que a lib psycopg2 já gerencia os commits e rollbacks
             cursor.execute("BEGIN;")
 
             # Inserir o livro

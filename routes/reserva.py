@@ -10,13 +10,26 @@ reserva_route = APIRouter(prefix="/reserva", tags=["reserva"])
 
 @reserva_route.post("/")
 def create_reserva(reserva: ReservaIn, db: psycopg2.extensions.connection = Depends(get_db)):
-    try:
-        with db.cursor() as cursor:
+    with db.cursor() as cursor:
+        try:
+            # Consultar o número de reservas para o livro
+            cursor.execute("SELECT COUNT(*) FROM Reserva WHERE isbn = %s;", (reserva.isbn,))
+            count = cursor.fetchone()[0]
+
+            # Verificar se o livro já tem mais de 3 reservas
+            if count >= 3:
+                raise HTTPException(status_code=400, detail="Não é possível reservar este livro. Ele já tem 3 reservas.")
+
+            # Se o livro tiver 3 ou menos reservas, inserir a nova reserva
             cursor.execute("INSERT INTO Reserva (isbn, cliente_id) VALUES (%s, %s);", (reserva.isbn, reserva.cliente_id))
             db.commit()
-        return {"message": "Reserva criada com sucesso!"}
-    except IntegrityError:
-        raise HTTPException(status_code=400, detail="Reserva já existe ou dados inválidos.")
+            return {"message": "Reserva criada com sucesso!"}
+        except IntegrityError:
+            db.rollback()  # Reverter a transação
+            raise HTTPException(status_code=400, detail="Reserva já existe ou dados inválidos.")
+        except Exception as e:
+            db.rollback()  # Reverter a transação em caso de qualquer outro erro
+            raise e
 
 
 @reserva_route.delete("/{isbn}/{cliente_id}/")
