@@ -1,0 +1,1 @@
+ENDERECO_NOT_FOUND = "Endereço não encontrado."
